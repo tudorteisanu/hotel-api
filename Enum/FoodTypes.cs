@@ -1,9 +1,10 @@
-﻿namespace HotelApi.Enum;
+﻿using System.ComponentModel;
 
-public static class FoodTypes
+namespace HotelApi.Enum;
+
+public enum FoodTypes
 {
-    public const string Asian = "Asian";
-    public const string NorthIndian = "North Indian";
-    public const string NorthernFood = "Northern Food";
+    Asian = 1,
+    White = 2,
+    Rose = 3
 }
-

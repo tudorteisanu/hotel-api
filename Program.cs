@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.EntityFrameworkCore;
+using HotelApi.Services;
+using HotelApi.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 
@@ -9,6 +13,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IHotelService, HotelService>();
 
 var app = builder.Build();
 

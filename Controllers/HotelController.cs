@@ -3,6 +3,7 @@ using HotelApi.Models;
 using AutoMapper;
 using HotelApi.Dto;
 using HotelApi.Services;
+using HotelApi.Interfaces;
 
 namespace HotelApi.Controllers;
 
@@ -10,11 +11,11 @@ namespace HotelApi.Controllers;
 [Route("[controller]")]
 public class HotelController : ControllerBase
 {
-    private HotelService hotelService;
+    private IHotelService hotelService;
 
-    public HotelController(IMapper mapper)
+    public HotelController(IHotelService _hotelService)
     {
-        hotelService = new HotelService(mapper);
+        hotelService = _hotelService;
     }
 
     [HttpGet("[action]")]
@@ -38,9 +39,15 @@ public class HotelController : ControllerBase
 
 
     [HttpPost]
-    public Hotel Post(Hotel hotel)
+    public Hotel Post(CreateHotelDto hotel)
     {
-        return hotel;
+        return hotelService.AddHotel(hotel);
+    }
+
+    [HttpPatch("{hotelId}")]
+    public Hotel? UpdateHotel(int hotelId, UpdateHotelDto payload)
+    {
+        return hotelService.UpdateHotel(hotelId, payload);
     }
 
 
@@ -48,12 +55,7 @@ public class HotelController : ControllerBase
     public Hotel Put(int hotelId, Hotel hotel)
     {
 
-        return new Hotel
-        {
-            Id = hotelId,
-            Name = hotel.Name,
-            Image = new Media { Path = "images/image_1", Id = 1 }
-        };
+        return hotel;
     }
 }
 

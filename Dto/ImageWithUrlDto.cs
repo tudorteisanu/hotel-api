@@ -1,7 +1,5 @@
-﻿using System;
-using HotelApi.Models;
+﻿namespace HotelApi.Dto;
 
-namespace HotelApi.Dto;
 public class ImageWithUrlDto
 {
 	public required int Id { get; set; }

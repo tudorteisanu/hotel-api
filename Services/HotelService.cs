@@ -1,90 +1,77 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using HotelApi.Dto;
-using HotelApi.Enum;
 
 using HotelApi.Models;
 using HotelApi.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelApi.Services;
 
 public class HotelService : IHotelService
 {
     private readonly IMapper mapper;
+    private readonly AppDbContext dbContext;
 
-    public HotelService(IMapper _mapper)
+    public HotelService(IMapper _mapper, AppDbContext _dbContext)
     {
         mapper = _mapper;
+        dbContext = _dbContext;
     }
 
 	public IEnumerable<FeaturedHotelDto> GetFeaturedHotels()
 	{
-        IEnumerable<Hotel> hotels = GetRandomHotels();
+        IEnumerable<Hotel> hotels = dbContext.Hotel
+           .Include(m => m.Reviews)
+           .Include(m => m.Image)
+           .Where(hotel => hotel.Featured == true)
+           .OrderBy(hotel => hotel.Id)
+           .Take(4);
+       
         return mapper.Map<IEnumerable<Hotel>, IEnumerable<FeaturedHotelDto>>(hotels);
     }
 
     public IEnumerable<FeaturedHotelDto> GetPopularHotels()
     {
-        IEnumerable<Hotel> hotels = GetRandomHotels();
+        IEnumerable<Hotel> hotels = dbContext.Hotel
+            .Include(m => m.Reviews)
+            .Include(m => m.Image)
+            .Where(hotel => hotel.Featured == true)
+            .Take(4);
         return mapper.Map<IEnumerable<Hotel>, IEnumerable<FeaturedHotelDto>>(hotels);
     }
 
     public IEnumerable<Hotel> GetHotelsList()
     {
-        return Enumerable.Range(1, 5).Select(index => new Hotel
-        {
-            Id = index,
-            Name = $"Hotel name {index}",
-            Location = $"Hotel Location {index}",
-            Image = new Media { Id = 1, Path = "images/image_1" },
-        });
+
+        return dbContext.Hotel.Include(m => m.Image).AsEnumerable();
     }
 
-    private IEnumerable<Hotel> GetRandomHotels()
+    public Hotel AddHotel(CreateHotelDto hotelDto)
     {
-        return Enumerable.Range(1, 4).Select(index => new Hotel
-        {
-            Id = index,
-            Name = $"Hotel name {index}",
-            Location = $"Connaught Place, Central Delhi {index}",
-            FoodTypes = new List<string> { FoodTypes.Asian, FoodTypes.NorthernFood },
-            Price = "asd asd a",
-            Reviews = new List<Review>
-            {
-                new Review
-                {
-                    Id = 1,
-                    Comment = "",
-                    Value = (float)(Random.Shared.NextDouble() * (5 - 2) + 2)
-                },
-                new Review
-                {
-                    Id = 1,
-                    Comment = "",
-                     Value = (float)(Random.Shared.NextDouble() * (5 - 2) + 2)
-                },
-                new Review
-                {
-                    Id = 1,
-                    Comment = "",
-                    Value = (float)(Random.Shared.NextDouble() * (5 - 2) + 2)
-                },
-                new Review
-                {
-                    Id = 1,
-                    Comment = "",
-                     Value = (float)(Random.Shared.NextDouble() * (5 - 2) + 2)
-                },
-                new Review
-                {
-                    Id = 1,
-                    Comment = "",
-                    Value = (float)(Random.Shared.NextDouble() * (5 - 2) + 2)
-                },
-            },
-            Image = new Media { Id = 2, Path = $"images/image_{index}.png" }
-        });
+        var hotel = mapper.Map<CreateHotelDto, Hotel>(hotelDto);
+        dbContext.Hotel.Add(hotel);
+        dbContext.SaveChanges();
+        return hotel;
+    }
 
+    public Hotel? UpdateHotel(int hotelId, UpdateHotelDto payload)
+    {
+        var hotelFromDb = dbContext.Hotel.Single(c => c.Id == hotelId);
+
+        if (hotelFromDb == null)
+        {
+
+            return null;
+        }
+
+        if (payload.ImageId != 0)
+        {
+            hotelFromDb.ImageId = payload.ImageId;
+        }
+
+        dbContext.SaveChanges();
+
+        return hotelFromDb;
     }
 }
 
