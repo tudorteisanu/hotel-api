@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HotelApi.Models;
-using AutoMapper;
 using HotelApi.Dto;
-using HotelApi.Services;
 using HotelApi.Interfaces;
 
 namespace HotelApi.Controllers;

@@ -7,6 +7,7 @@ public class Review
     public required float Value { get; set; }
 
     public Media[]? Gallery { get; set; }
-    public User? Author { get; set;}
+    public required virtual User Author { get; set;}
+    public int AuthorId { get; set; }
 }
 
